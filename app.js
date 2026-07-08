@@ -169,33 +169,40 @@ function handleSession(session) {
 }
 
 $('#auth-send').addEventListener('click', async () => {
-  const email = $('#auth-email').value.trim();
+  const password = $('#auth-password').value;
   const msg = $('#auth-msg');
-  if (!email) {
-    msg.className = 'auth-msg error';
-    msg.textContent = '이메일을 입력해 주세요.';
+  const setMsg = (cls, text) => { msg.className = 'auth-msg ' + cls; msg.textContent = text; };
+  if (password.length < 6) {
+    setMsg('error', '비밀번호는 6자 이상이어야 합니다.');
     return;
   }
   $('#auth-send').disabled = true;
-  msg.className = 'auth-msg';
-  msg.textContent = '보내는 중…';
+  setMsg('', '로그인 중…');
   try {
-    const { error } = await sb.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: location.origin + location.pathname },
-    });
-    if (error) throw error;
-    msg.className = 'auth-msg ok';
-    msg.textContent = '메일함에서 로그인 링크를 눌러 주세요.';
+    const { error } = await sb.auth.signInWithPassword({ email: OWNER_EMAIL, password });
+    if (!error) return; // onAuthStateChange가 화면 전환
+
+    // 로그인 실패 → 첫 사용이면 계정 생성 시도
+    const { data, error: signUpErr } = await sb.auth.signUp({ email: OWNER_EMAIL, password });
+    if (signUpErr) {
+      setMsg('error', signUpErr.message.includes('already registered')
+        ? '비밀번호가 틀렸습니다.' : '로그인 실패: ' + signUpErr.message);
+    } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+      // 이미 가입된 이메일 — signUp이 조용히 무시된 경우
+      setMsg('error', '비밀번호가 틀렸습니다.');
+    } else if (data.session) {
+      setMsg('ok', '계정을 만들었습니다.'); // 자동 확인 설정 — 바로 로그인됨
+    } else {
+      setMsg('ok', '계정을 만들었습니다. 메일함에서 확인 링크를 누른 뒤 다시 로그인하세요.');
+    }
   } catch (err) {
-    msg.className = 'auth-msg error';
-    msg.textContent = '발송 실패: ' + err.message;
+    setMsg('error', '연결 실패: ' + err.message);
   } finally {
     $('#auth-send').disabled = false;
   }
 });
 
-$('#auth-email').addEventListener('keydown', e => {
+$('#auth-password').addEventListener('keydown', e => {
   if (e.key === 'Enter') $('#auth-send').click();
 });
 

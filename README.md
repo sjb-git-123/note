@@ -17,15 +17,13 @@
 ## 최초 설정 (1회)
 
 1. **DB 스키마**: Supabase 대시보드 → SQL Editor → `schema.sql` 내용 실행
-2. **인증 리다이렉트**: Supabase 대시보드 → Authentication → URL Configuration
-   - Site URL: `https://sjb-git-123.github.io/note/`
-   - Additional Redirect URLs 에 로컬 테스트용 `http://localhost:3000` 추가 (선택)
-3. **GitHub Pages**: 저장소 Settings → Pages → Branch `main` / root 선택
+2. **GitHub Pages**: 저장소 Settings → Pages → Branch `main` / root 선택 (완료됨)
 
 ## 사용
 
 - 배포 주소: https://sjb-git-123.github.io/note/
-- 이메일 입력 → 메일의 매직링크 클릭 → 노트 작성
+- 첫 접속 시 사용할 비밀번호(6자 이상)를 정해 입력하면 계정이 만들어짐.
+  이후에는 기기당 최초 1회만 같은 비밀번호 입력 (세션 유지)
 - 갤럭시탭: S펜으로 필기(필압 반영), 손가락은 화면 이동/핀치줌
 - 노트북: 마우스로 필기, Ctrl+휠 줌, Ctrl+Z/Y 실행취소/재실행
 - 휴대폰: 손가락 필기 가능, 두 손가락 핀치줌으로 확대 열람

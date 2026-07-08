@@ -5,6 +5,9 @@ const SUPABASE_URL = 'https://anyetpykosoulymfxueq.supabase.co';
 // anon 공개 키 — RLS로 보호되므로 노출 무방 (service_role 키는 절대 포함 금지)
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFueWV0cHlrb3NvdWx5bWZ4dWVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0ODU3OTMsImV4cCI6MjA5OTA2MTc5M30.u-LL8Pk3NV6gcoHMSPxza6Aj3dp4wj7EMlWxHLLMNV0';
 
+// 1인용 앱 — 계정 이메일은 고정, 로그인은 비밀번호만 입력
+const OWNER_EMAIL = 'osozx4919@gmail.com';
+
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const DB = {
