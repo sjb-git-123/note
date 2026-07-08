@@ -28,7 +28,21 @@
       <button id="logout" class="ghost">로그아웃</button>
     </div>
   </header>
+  <div class="list-controls">
+    <input type="search" id="search-input" placeholder="🔍 필기 내용·노트 제목 검색">
+    <select id="sort-select">
+      <option value="updated">최근 수정순</option>
+      <option value="created">최근 생성순</option>
+      <option value="title">제목순</option>
+    </select>
+  </div>
+  <div class="tabs" id="list-tabs">
+    <button data-tab="notes" class="active">노트</button>
+    <button data-tab="bookmarks">🔖 책갈피</button>
+  </div>
   <div id="note-list" class="note-list"></div>
+  <div id="bookmark-list" class="result-list hidden"></div>
+  <div id="search-results" class="result-list hidden"></div>
   <p id="list-empty" class="list-empty hidden">노트가 없습니다. 새 노트를 만들어 보세요.</p>
 </section>
 
@@ -40,7 +54,8 @@
     <span class="divider"></span>
 
     <button id="tool-pen" class="tool active" title="펜">✏️</button>
-    <button id="tool-eraser" class="tool" title="지우개 (스트로크 삭제)">🧽</button>
+    <button id="tool-text" class="tool text-tool" title="텍스트 (탭한 곳에 타이핑)">T</button>
+    <button id="tool-eraser" class="tool" title="지우개 (획/텍스트 삭제)">🧽</button>
     <span class="divider"></span>
 
     <button class="color-btn active" data-color="#000000" style="--c:#000000" title="검정"></button>
@@ -61,6 +76,10 @@
     <span id="page-indicator" class="page-indicator">1 / 1</span>
     <button id="btn-next" title="다음 페이지">▶</button>
     <button id="btn-add-page" title="페이지 추가">＋</button>
+    <button id="btn-del-page" title="현재 페이지 삭제">🗑</button>
+    <span class="divider"></span>
+
+    <button id="btn-bookmark" title="이 페이지 책갈피">🔖</button>
     <span class="divider"></span>
 
     <button id="btn-fit" title="화면 맞춤">⛶</button>
@@ -68,6 +87,8 @@
   </div>
   <div id="canvas-wrap" class="canvas-wrap">
     <canvas id="note-canvas"></canvas>
+    <textarea id="text-input" class="text-input hidden" spellcheck="false"
+      placeholder="입력 후 바깥을 누르면 완료"></textarea>
   </div>
 </section>
 

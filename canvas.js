@@ -20,9 +20,13 @@ class CanvasEngine {
     this.undoStack = [];     // 이전 상태 스냅숏 (스트로크 배열의 얕은 복사)
     this.redoStack = [];
 
-    this.tool = 'pen';       // 'pen' | 'eraser'
+    this.tool = 'pen';       // 'pen' | 'eraser' | 'text'
     this.color = '#000000';
     this.baseWidth = 3;
+    this.textSize = 44;      // 텍스트 도구 글자 크기 (페이지 좌표 기준)
+
+    this.editing = null;     // 편집 중인 텍스트 항목 (렌더링에서 숨김)
+    this.onTextClick = null; // 텍스트 도구로 캔버스를 눌렀을 때 콜백 (p, hitItem)
 
     // 펜 입력이 한 번이라도 감지되면 손가락 터치로는 그리지 않음 (팜 리젝션)
     this.hasPen = false;
@@ -144,6 +148,12 @@ class CanvasEngine {
     }
 
     if (!this._canDraw(e) || this.active) return;
+
+    if (this.tool === 'text') {
+      const p = this._toPage(e);
+      if (this.onTextClick) this.onTextClick(p, this.hitTextAt(p));
+      return;
+    }
 
     if (this.tool === 'eraser') {
       this._eraseSnapshot = this.strokes.slice();
@@ -326,7 +336,68 @@ class CanvasEngine {
     }
   }
 
+  // ---------- 텍스트 항목 ----------
+
+  _textBounds(t) {
+    this.ctx.font = t.size + 'px sans-serif';
+    const lines = t.text.split('\n');
+    let w = 0;
+    for (const l of lines) w = Math.max(w, this.ctx.measureText(l).width);
+    return { x: t.x, y: t.y, w, h: lines.length * t.size * 1.3 };
+  }
+
+  hitTextAt(p) {
+    for (let i = this.strokes.length - 1; i >= 0; i--) {
+      const s = this.strokes[i];
+      if (s.tool !== 'text') continue;
+      const b = this._textBounds(s);
+      if (p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h) return s;
+    }
+    return null;
+  }
+
+  // 텍스트 입력 확정: existing이 있으면 수정(빈 문자열이면 삭제), 없으면 새로 추가
+  commitText(existing, data) {
+    this.editing = null;
+    const text = (data.text || '').replace(/\s+$/, '');
+    const snapshot = this.strokes.slice();
+    if (existing) {
+      const idx = this.strokes.indexOf(existing);
+      if (idx === -1) { this.render(); return; }
+      if (!text) this.strokes.splice(idx, 1);
+      else if (text === existing.text) { this.render(); return; } // 변경 없음
+      else this.strokes[idx] = { ...existing, text };
+    } else {
+      if (!text) { this.render(); return; }
+      this.strokes.push({ tool: 'text', x: data.x, y: data.y, text, color: data.color, size: data.size });
+    }
+    this._commit(snapshot);
+    this.render();
+    if (this.onChange) this.onChange();
+  }
+
+  cancelTextEdit() {
+    this.editing = null;
+    this.render();
+  }
+
+  _drawText(t) {
+    const ctx = this.ctx;
+    ctx.font = t.size + 'px sans-serif';
+    ctx.fillStyle = t.color;
+    ctx.textBaseline = 'top';
+    const lines = t.text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(lines[i], t.x, t.y + i * t.size * 1.3);
+    }
+  }
+
   _strokeHit(stroke, p) {
+    if (stroke.tool === 'text') {
+      const b = this._textBounds(stroke);
+      const m = ERASER_RADIUS / this.zoom;
+      return p.x >= b.x - m && p.x <= b.x + b.w + m && p.y >= b.y - m && p.y <= b.y + b.h + m;
+    }
     const r = ERASER_RADIUS / this.zoom + stroke.width;
     const pts = stroke.points;
     if (pts.length === 1) {
@@ -372,7 +443,10 @@ class CanvasEngine {
     ctx.beginPath();
     ctx.rect(0, 0, PAGE_W, PAGE_H);
     ctx.clip();
-    for (const s of this.strokes) this._drawStroke(s);
+    for (const s of this.strokes) {
+      if (s === this.editing) continue; // 편집 중인 텍스트는 입력창이 대신 표시
+      this._drawStroke(s);
+    }
     if (this.active && this.active.tool === 'pen') this._drawStroke(this.active);
     ctx.restore();
   }
@@ -384,6 +458,7 @@ class CanvasEngine {
   }
 
   _drawStroke(stroke) {
+    if (stroke.tool === 'text') { this._drawText(stroke); return; }
     const ctx = this.ctx;
     const pts = stroke.points;
     if (!pts || pts.length === 0) return;

@@ -14,10 +14,10 @@ const DB = {
   async listNotebooks() {
     const { data, error } = await sb
       .from('notebooks')
-      .select('id, title, updated_at')
+      .select('id, title, created_at, updated_at, pages(count)')
       .order('updated_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data.map(nb => ({ ...nb, pageCount: nb.pages && nb.pages[0] ? nb.pages[0].count : 0 }));
   },
 
   async createNotebook(userId) {
@@ -46,7 +46,7 @@ const DB = {
   async listPages(notebookId) {
     const { data, error } = await sb
       .from('pages')
-      .select('id, page_number')
+      .select('id, page_number, bookmarked')
       .eq('notebook_id', notebookId)
       .order('page_number');
     if (error) throw error;
@@ -73,14 +73,52 @@ const DB = {
     return data.strokes;
   },
 
-  async savePage(pageId, notebookId, strokes) {
+  async savePage(pageId, notebookId, strokes, textContent) {
     const now = new Date().toISOString();
     const { error } = await sb
       .from('pages')
-      .update({ strokes, updated_at: now })
+      .update({ strokes, text_content: textContent || '', updated_at: now })
       .eq('id', pageId);
     if (error) throw error;
     // 노트 목록의 최종 수정일 갱신
     await sb.from('notebooks').update({ updated_at: now }).eq('id', notebookId);
+  },
+
+  async deletePage(pageId) {
+    const { error } = await sb.from('pages').delete().eq('id', pageId);
+    if (error) throw error;
+  },
+
+  async setPageNumber(pageId, n) {
+    const { error } = await sb.from('pages').update({ page_number: n }).eq('id', pageId);
+    if (error) throw error;
+  },
+
+  async setBookmark(pageId, on) {
+    const { error } = await sb.from('pages').update({ bookmarked: on }).eq('id', pageId);
+    if (error) throw error;
+  },
+
+  async listBookmarks() {
+    const { data, error } = await sb
+      .from('pages')
+      .select('id, page_number, notebook_id, text_content, notebooks(title)')
+      .eq('bookmarked', true)
+      .order('updated_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  // 타이핑한 텍스트 내용 검색 (손글씨는 좌표 데이터라 검색 불가)
+  async searchPages(query) {
+    const q = query.replace(/[%_]/g, ch => '\\' + ch);
+    const { data, error } = await sb
+      .from('pages')
+      .select('id, page_number, notebook_id, text_content, notebooks(title)')
+      .ilike('text_content', `%${q}%`)
+      .order('updated_at', { ascending: false })
+      .limit(50);
+    if (error) throw error;
+    return data;
   },
 };
