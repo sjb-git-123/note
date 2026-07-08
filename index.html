@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>MyNote — 필기</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 1. 로그인 화면 -->
+<section id="auth-screen" class="screen hidden">
+  <div class="auth-box">
+    <h1>📝 MyNote</h1>
+    <p>이메일을 입력하면 로그인 링크를 보내드립니다.</p>
+    <input type="email" id="auth-email" placeholder="이메일 주소" autocomplete="email">
+    <button id="auth-send" class="primary">로그인 링크 보내기</button>
+    <p id="auth-msg" class="auth-msg"></p>
+  </div>
+</section>
+
+<!-- 2. 노트 목록 화면 -->
+<section id="list-screen" class="screen hidden">
+  <header class="list-header">
+    <h1>📝 내 노트</h1>
+    <div class="list-actions">
+      <button id="new-note" class="primary">＋ 새 노트</button>
+      <button id="logout" class="ghost">로그아웃</button>
+    </div>
+  </header>
+  <div id="note-list" class="note-list"></div>
+  <p id="list-empty" class="list-empty hidden">노트가 없습니다. 새 노트를 만들어 보세요.</p>
+</section>
+
+<!-- 3. 필기 화면 -->
+<section id="editor-screen" class="screen hidden">
+  <div class="toolbar">
+    <button id="btn-back" title="노트 목록으로">←</button>
+    <span id="editor-title" class="editor-title"></span>
+    <span class="divider"></span>
+
+    <button id="tool-pen" class="tool active" title="펜">✏️</button>
+    <button id="tool-eraser" class="tool" title="지우개 (스트로크 삭제)">🧽</button>
+    <span class="divider"></span>
+
+    <button class="color-btn active" data-color="#000000" style="--c:#000000" title="검정"></button>
+    <button class="color-btn" data-color="#e02020" style="--c:#e02020" title="빨강"></button>
+    <button class="color-btn" data-color="#1a56db" style="--c:#1a56db" title="파랑"></button>
+    <span class="divider"></span>
+
+    <button class="width-btn" data-width="1.5" title="가늘게"><span class="dot" style="width:4px;height:4px"></span></button>
+    <button class="width-btn active" data-width="3" title="보통"><span class="dot" style="width:8px;height:8px"></span></button>
+    <button class="width-btn" data-width="6" title="굵게"><span class="dot" style="width:13px;height:13px"></span></button>
+    <span class="divider"></span>
+
+    <button id="btn-undo" title="실행 취소 (Ctrl+Z)" disabled>↩</button>
+    <button id="btn-redo" title="다시 실행 (Ctrl+Y)" disabled>↪</button>
+    <span class="divider"></span>
+
+    <button id="btn-prev" title="이전 페이지">◀</button>
+    <span id="page-indicator" class="page-indicator">1 / 1</span>
+    <button id="btn-next" title="다음 페이지">▶</button>
+    <button id="btn-add-page" title="페이지 추가">＋</button>
+    <span class="divider"></span>
+
+    <button id="btn-fit" title="화면 맞춤">⛶</button>
+    <span id="save-status" class="save-status saved">저장됨</span>
+  </div>
+  <div id="canvas-wrap" class="canvas-wrap">
+    <canvas id="note-canvas"></canvas>
+  </div>
+</section>
+
+<div id="loading" class="loading">불러오는 중…</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase.js"></script>
+<script src="canvas.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

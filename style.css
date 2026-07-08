@@ -1,0 +1,220 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', 'Malgun Gothic', -apple-system, sans-serif;
+  background: #f0f2f5;
+  color: #222;
+  overscroll-behavior: none;
+}
+
+.hidden { display: none !important; }
+
+.screen { height: 100%; }
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid #d0d4da;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+button:disabled { opacity: 0.35; cursor: default; }
+button.primary {
+  background: #1a56db;
+  border-color: #1a56db;
+  color: #fff;
+}
+button.ghost { background: transparent; border-color: transparent; color: #666; }
+
+/* ---------- 로그인 ---------- */
+
+#auth-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth-box {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  padding: 40px 32px;
+  width: min(90vw, 380px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.auth-box h1 { font-size: 28px; }
+.auth-box p { color: #666; font-size: 14px; }
+.auth-box input {
+  font: inherit;
+  padding: 12px;
+  border: 1px solid #d0d4da;
+  border-radius: 8px;
+}
+.auth-box .primary { padding: 12px; }
+.auth-msg { min-height: 1.2em; }
+.auth-msg.ok { color: #16803c; }
+.auth-msg.error { color: #dc2626; }
+
+/* ---------- 노트 목록 ---------- */
+
+#list-screen {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  overflow-y: auto;
+}
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.list-header h1 { font-size: 22px; }
+.list-actions { display: flex; gap: 8px; }
+.note-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.note-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 18px 16px 14px;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.note-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+.note-card .title {
+  font-weight: 600;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.note-card .date { color: #999; font-size: 12px; }
+.note-card .card-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.note-card .card-actions button {
+  padding: 4px 8px;
+  font-size: 12px;
+  border: none;
+  background: #f0f2f5;
+  border-radius: 6px;
+}
+.list-empty { text-align: center; color: #999; margin-top: 60px; }
+
+/* ---------- 필기 화면 ---------- */
+
+#editor-screen {
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 8px;
+  background: #fff;
+  border-bottom: 1px solid #e0e3e8;
+  overflow-x: auto;
+  flex: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.toolbar button {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 17px;
+}
+.toolbar button:hover { background: #f0f2f5; }
+.toolbar button.active { background: #e3ecfd; border-color: #1a56db; }
+.toolbar .divider {
+  flex: none;
+  width: 1px;
+  height: 24px;
+  background: #e0e3e8;
+  margin: 0 3px;
+}
+.editor-title {
+  flex: none;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 14px;
+}
+.color-btn { position: relative; }
+.color-btn::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--c);
+}
+.width-btn .dot { background: #444; border-radius: 50%; }
+.page-indicator {
+  flex: none;
+  font-size: 13px;
+  color: #555;
+  min-width: 46px;
+  text-align: center;
+}
+.save-status {
+  flex: none;
+  margin-left: auto;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+.save-status.saved { background: #dcfce7; color: #16803c; }
+.save-status.saving, .save-status.pending { background: #fef9c3; color: #854d0e; }
+.save-status.offline { background: #fee2e2; color: #b91c1c; }
+
+.canvas-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background: #dfe3e8;
+}
+#note-canvas {
+  display: block;
+  touch-action: none; /* 필기 중 화면 스크롤 방지 — 필수 */
+}
+
+.loading {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f2f5;
+  color: #666;
+  z-index: 100;
+}
+
+@media (max-width: 600px) {
+  .editor-title { display: none; }
+}
